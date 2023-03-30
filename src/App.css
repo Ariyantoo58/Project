@@ -27,6 +27,14 @@
 .App-link {
   color: #61dafb;
 }
+.category-aktif {
+  background: #22668a;
+  color: white;
+}
+
+.primary {
+  background: #22668a;
+}
 
 @keyframes App-logo-spin {
   from {

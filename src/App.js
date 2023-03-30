@@ -1,170 +1,21 @@
-
-import './App.css';
-import NavbarComponent from './component/NavbarComponent';
-import ListCatagories from './component/listCatagories';
-import Hasil from './component/Hasil';
-import { Row, Col, Container } from 'react-bootstrap';
-import React, { Component } from 'react';
-import { API_URL } from './utils/constant';
-import axios from 'axios';
-import Menus from './component/Menus';
-import swal from 'sweetalert';
-
-class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      menus: [],
-      chooseCategory: 'Makanan',
-      keranjang: []
-    }
-  }
+import React, { Component } from 'react'
+import { BrowserRouter, Routes, Route, } from 'react-router-dom'
+import NavbarComponent from './component/NavbarComponent'
+import { Home, Sukses } from './Pages'
 
 
 
-
-  componentDidMount() {
-    axios
-      .get(API_URL + "products?category.nama=" + this.state.chooseCategory)
-      .then(res => {
-        const menus = res.data;
-        this.setState({ menus })
-      })
-      .catch(error => {
-        console.log(error)
-      });
-
-    axios
-      .get(API_URL + "keranjangs")
-      .then(res => {
-        const keranjangs = res.data;
-        this.setState({ keranjangs })
-
-        console.log(keranjangs, 'Ini keranjang gede')
-
-      })
-      .catch(error => {
-        console.log(error)
-      })
-
-  }
-
-  changeCategory = (value) => {
-    this.setState({
-      chooseCategory: value,
-      menus: []
-    })
-
-    axios
-      .get(API_URL + "products?category.nama=" + value)
-      .then(res => {
-        const menus = res.data;
-        this.setState({ menus })
-      })
-      .catch(error => {
-        console.log(error)
-      })
-
-  }
-
-  inputKeranjang = (value) => {
-
-    axios
-      .get(API_URL + "keranjangs?product.id=" + value.id)
-      .then(res => {
-        if (res.data.length === 0) {
-
-          const keranjang = {
-            jumlah: 1,
-            total_harga: value.total,
-            product: value
-          }
-
-
-          axios
-            .post(API_URL + 'keranjangs')
-            .then(res => {
-              swal({
-                title: "Berhasil!",
-                text: keranjang.product.nama + " Masuk Keranjang!",
-                icon: "success",
-                timer: 2000
-              });
-            })
-            .catch(error => {
-              console.log(error)
-            });
-
-
-
-        }
-
-        else {
-          const keranjang = {
-            jumlah: res.data[0].jumlah + 1,
-            total_harga: res.data[0].total_harga + value.harga,
-            product: value
-          };
-
-          axios
-            .put(API_URL + "keranjangs/" + res.data[0].id, 'keranjang')
-            .then(res => {
-              swal({
-                title: "Berhasil!",
-                text: keranjang.product.nama + " Masuk Keranjang!",
-                icon: "success",
-                timer: 2000
-              });
-            })
-            .catch(error => {
-              console.log(error)
-            });
-
-
-
-        }
-      })
-      .catch(error => {
-        console.log(error)
-      })
-
-
-  }
-
-
+export default class App extends Component {
   render() {
-    const { menus, chooseCategory, keranjangs } = this.state;
     return (
-      < div className="App" >
+      <BrowserRouter>
         <NavbarComponent />
-        <div className='mt-2'>
-          <Container fluid>
-            <Row>
-              <ListCatagories changeCategory={this.changeCategory} chooseCategory={chooseCategory} />
-              <Col>
-                <h4><strong>Daftar Produk</strong></h4>
-                <hr />
-                <Row>
-                  {menus && menus.map((menu) => (
-                    <Menus
-                      menu={menu}
-                      key={menu.id}
-                      inputKeranjang={this.inputKeranjang}
+        <Routes>
+          <Route exact path='/' element={<Home />} />
+          <Route path='/sukses' element={<Sukses />} />
+        </Routes>
 
-
-                    />
-                  ))}
-                </Row>
-              </Col>
-              <Hasil keranjangs={keranjangs} />
-            </Row>
-          </Container>
-        </div>
-      </div >
-    );
+      </BrowserRouter>
+    )
   }
 }
-
-export default App;
-
-
